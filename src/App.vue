@@ -1,15 +1,16 @@
 <template>
   <div id="wrapper">
-    <div class="header ">
-      <h1 class="main-title text-blue-400 text-2xl">Alışveriş Sepeti Uygulaması - {{wallet}} $</h1>
+    <div class="header flex flex-col">
+      <h1 class="main-title text-blue-400 text-2xl">Alışveriş Sepeti Uygulaması - {{wallet.toFixed(2)}} $</h1>
       <p1 class="purchased-count-text text-center">Şu ana kadar {{purchasedProduct.length}} tane ürün aldınız...</p1>
-
+      <button @click="wallet +=5" class="bg-blue-100 mx-32 rounded-lg hover:bg-red-200" >Para ekle +5$</button>
     </div>
    <div class="product-list">
      <app-product-item
          v-for="product in products" :key="product.id"
          :product="product" @purchaseProductById="purchadeProductById"
          :isPurchasedProduct="isPurchasedProduct"
+         @sellProductById="sellProductById"
      ></app-product-item>
    </div>
     <pre>
@@ -24,22 +25,30 @@
 import AppProductItem from "@/components/appProductItem.vue";
 import {ref} from "vue";
 
-const wallet = ref(250.0)
+const wallet = ref(5.00)
  const purchasedProduct =ref([])
+
  const purchadeProductById = (product)=>{
-  purchasedProduct.value.push(product)
+
+ if(wallet.value >= product.price){
+   wallet.value -= product.price;
+   purchasedProduct.value.push(product)
+ }
+ else{
+   alert('Yetersiz Bakiye')
+ }
+ }
+ const sellProductById = ({id,price})=>{
+   wallet.value += price;
+
+   purchasedProduct.value = purchasedProduct.value.filter((purchasedProductItem) => purchasedProductItem.id != id)
  }
 
  const isPurchasedProduct = (id) =>{
   const product = purchasedProduct.value.find(
       (purchasedProductItem) => purchasedProductItem.id == id
   );
-  if(product){
-    return true;
-  } else{
-    return false;
-  }
-
+  return !!product;
 
  }
 
